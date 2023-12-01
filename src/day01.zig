@@ -20,19 +20,16 @@ pub fn partOne() !u32 {
 
         const chars = std.mem.bytesAsSlice(u8, line);
         for (chars) |c| {
+            // check for digit num
             if (std.ascii.isDigit(c)) {
-                if (first == null) {
-                    // subtract 0 char to convert ANSI decimal representation to real num
-                    first = c - '0';
-                } else {
-                    last = c - '0';
-                }
-            }
-        }
+                const digit = c - '0';
 
-        // some lines only have one number
-        if (last == null) {
-            last = first.?;
+                if (first == null) {
+                    first = digit;
+                }
+
+                last = digit;
+            }
         }
 
         // multiply by 10 to put first in tens column
@@ -66,17 +63,14 @@ pub fn partTwo() !u32 {
 
             // check for digit num
             if (std.ascii.isDigit(c)) {
-                if (first == null) {
-                    first = c - '0';
-                } else {
-                    last = c - '0';
-                }
-            }
-        }
+                const digit = c - '0';
 
-        // some lines only have one number
-        if (last == null) {
-            last = first.?;
+                if (first == null) {
+                    first = digit;
+                }
+
+                last = digit;
+            }
         }
 
         // multiply by 10 to put first in tens column
