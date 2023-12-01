@@ -9,67 +9,51 @@ const util = @import("util.zig");
 const gpa = util.gpa;
 
 const data = @embedFile("data/day01.txt");
+const nums = [_][]const u8{ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
 
-pub fn partOne() !u32 {
-    var rollingSum: u32 = 0;
-
-    var lines = splitAny(u8, data, "\n");
-    while (lines.next()) |line| {
-        var first: ?u8 = null;
-        var last: ?u8 = null;
-
-        const chars = std.mem.bytesAsSlice(u8, line);
-        for (chars) |c| {
-            // check for digit num
-            if (std.ascii.isDigit(c)) {
-                const digit = c - '0';
-
-                if (first == null) {
-                    first = digit;
-                }
-
-                last = digit;
-            }
+fn searchText(i: usize, line: []const u8, first: *?u8, last: *?u8) void {
+    for (nums, 1..) |num, j| {
+        if (!std.mem.startsWith(u8, line[i..], num)) {
+            continue;
         }
 
-        // multiply by 10 to put first in tens column
-        const value = first.? * 10 + last.?;
-        rollingSum += value;
-    }
+        if (first.* == null) {
+            first.* = @intCast(j);
+        }
 
-    return rollingSum;
+        last.* = @intCast(j);
+    }
 }
 
-pub fn partTwo() !u32 {
-    const nums = [_][]const u8{ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
-    var rollingSum: u32 = 0;
+fn searchDigits(c: u8, first: *?u8, last: *?u8) void {
+    if (!std.ascii.isDigit(c)) {
+        return;
+    }
 
+    const digit = std.fmt.charToDigit(c, 10);
+
+    if (first.* == null) {
+        first.* = digit;
+    }
+
+    last.* = digit;
+}
+
+pub fn solve(digits: bool, text: bool) !u32 {
+    var rollingSum: u32 = 0;
     var lines = splitAny(u8, data, "\n");
+
     while (lines.next()) |line| {
         var first: ?u8 = null;
         var last: ?u8 = null;
 
         for (line, 0..) |c, i| {
-            // check for text num
-            for (nums, 1..) |num, j| {
-                if (std.mem.startsWith(u8, line[i..], num)) {
-                    if (first == null) {
-                        first = @intCast(j);
-                    } else {
-                        last = @intCast(j);
-                    }
-                }
+            if (digits) {
+                searchDigits(c, &first, &last);
             }
 
-            // check for digit num
-            if (std.ascii.isDigit(c)) {
-                const digit = c - '0';
-
-                if (first == null) {
-                    first = digit;
-                }
-
-                last = digit;
+            if (text) {
+                searchText(i, line, &first, &last);
             }
         }
 
@@ -82,8 +66,13 @@ pub fn partTwo() !u32 {
 }
 
 pub fn main() !void {
-    print("Part 1: {}\n", .{try partOne()});
-    print("Part 2: {}\n", .{try partTwo()});
+    print("Part 1: {}\n", .{try solve(true, false)});
+    print("Part 2: {}\n", .{try solve(true, true)});
+}
+
+test "test input" {
+    try std.testing.expectEqual(solve(true, false), 54597);
+    try std.testing.expectEqual(solve(true, true), 54504);
 }
 
 // Useful stdlib functions
