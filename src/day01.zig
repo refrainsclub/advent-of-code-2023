@@ -17,11 +17,13 @@ fn searchText(i: usize, line: []const u8, first: *?u8, last: *?u8) void {
             continue;
         }
 
+        const digit: u8 = @intCast(j);
+
         if (first.* == null) {
-            first.* = @intCast(j);
+            first.* = digit;
         }
 
-        last.* = @intCast(j);
+        last.* = digit;
     }
 }
 
@@ -40,7 +42,7 @@ fn searchDigits(c: u8, first: *?u8, last: *?u8) void {
 }
 
 pub fn solve(digits: bool, text: bool) !u32 {
-    var rollingSum: u32 = 0;
+    var sum: u32 = 0;
     var lines = splitAny(u8, data, "\n");
 
     while (lines.next()) |line| {
@@ -58,11 +60,11 @@ pub fn solve(digits: bool, text: bool) !u32 {
         }
 
         // multiply by 10 to put first in tens column
-        const value = first.? * 10 + last.?;
-        rollingSum += value;
+        const val = first.? * 10 + last.?;
+        sum += val;
     }
 
-    return rollingSum;
+    return sum;
 }
 
 pub fn main() !void {
